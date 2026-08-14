@@ -40,12 +40,7 @@ async fn read_bangs(file_path: &str) -> Result<Vec<Bang>> {
 
 pub async fn get_bangs() -> Result<&'static Vec<Bang>> {
     let result = BANGS
-        .get_or_init(async || {
-            let bangs = read_bangs(BANGS_FILE).await.unwrap_or(vec![]);
-
-            println!("{} bangs initialized", bangs.len());
-            bangs
-        })
+        .get_or_init(async || read_bangs(BANGS_FILE).await.unwrap_or(vec![]))
         .await;
 
     Ok(result)

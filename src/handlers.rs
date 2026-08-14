@@ -34,8 +34,7 @@ pub async fn query(Query(query): Query<HandlerQuery>) -> Result<Redirect, Status
     let query = query.trim_start_matches(bang_match).trim();
     let bang_match = bang_match.trim_start_matches(DEFAULT_BANG_SYMBOL);
 
-    dbg!(bang_match);
-    dbg!(query);
+    tracing::info!("Bang match: {}; Query: {}", bang_match, query);
 
     let bangs = get_bangs().await;
     if let Ok(bangs) = bangs {
