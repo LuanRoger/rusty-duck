@@ -6,7 +6,7 @@ use serde::{Deserialize, Serialize};
 use tokio::net::TcpListener;
 
 use crate::bang::{
-    BANG_REGEX, BANGS, DEFAULT_BANG_SYMBOL, DEFAULT_BANG_TRIGGER_SYMBOL, QUERY_PLACEHOLDER,
+    BANG_REGEX, DEFAULT_BANG_SYMBOL, DEFAULT_BANG_TRIGGER_SYMBOL, QUERY_PLACEHOLDER, get_bangs,
 };
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -37,14 +37,18 @@ async fn handler(Query(query): Query<GetQuery>) -> Result<Redirect, StatusCode> 
     dbg!(bang_match);
     dbg!(query);
 
-    let bang = BANGS.iter().find(|b| b.trigger() == bang_match);
-    match bang {
-        Some(bang) => {
-            let rediret_to = bang.url();
-            let redirect_to = rediret_to.replace(QUERY_PLACEHOLDER, query);
+    let bangs = get_bangs().await;
+    if let Ok(bangs) = bangs {
+        let bang = bangs.iter().find(|b| b.trigger() == bang_match);
+        match bang {
+            Some(bang) => {
+                let rediret_to = bang.url();
+                let redirect_to = rediret_to.replace(QUERY_PLACEHOLDER, query);
 
-            Ok(Redirect::permanent(redirect_to.as_str()))
+                return Ok(Redirect::permanent(redirect_to.as_str()));
+            }
+            None => return Err(StatusCode::NOT_FOUND),
         }
-        None => Err(StatusCode::NOT_FOUND),
     }
+    Err(StatusCode::INTERNAL_SERVER_ERROR)
 }
