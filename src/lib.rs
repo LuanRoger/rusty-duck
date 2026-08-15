@@ -1,10 +1,17 @@
-pub mod bang;
+mod bang;
+mod handlers;
+mod router;
 
-#[cfg(any(feature = "native", feature = "wasm"))]
-pub mod handlers;
+use tower_service::Service;
+use worker::*;
 
-#[cfg(feature = "native")]
-pub mod router;
+use crate::router::router;
 
-#[cfg(all(feature = "wasm", target_arch = "wasm32"))]
-mod workers;
+#[event(fetch)]
+async fn fetch(
+    req: HttpRequest,
+    _env: Env,
+    _ctx: Context,
+) -> Result<axum::http::Response<axum::body::Body>> {
+    Ok(router().call(req).await?)
+}

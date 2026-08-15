@@ -3,4 +3,4 @@ main = "build/index.js"
 compatibility_date = "2026-08-15"
 
 [build]
-command = "cargo install -q \"worker-build@^0.8\" && worker-build --release --no-default-features --features wasm{% if panic_unwind %} --panic-unwind{% endif %}"
+command = "cargo install -q \"worker-build@^0.8\" && worker-build --release {% if panic_unwind %} --panic-unwind{% endif %}"
