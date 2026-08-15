@@ -3,9 +3,9 @@ use std::sync::LazyLock;
 use anyhow::Result;
 use regex::Regex;
 use serde::{Deserialize, Serialize};
-use tokio::{fs, sync::OnceCell};
+use tokio::sync::OnceCell;
 
-const BANGS_FILE: &str = "bangs.json";
+const BANGS_JSON_FILE: &str = include_str!("../bangs.json");
 pub const DEFAULT_BANG_SYMBOL: char = '!';
 pub const DEFAULT_BANG_TRIGGER: &str = "g";
 pub const QUERY_PLACEHOLDER: &str = "{{{s}}}";
@@ -31,16 +31,9 @@ impl Bang {
     }
 }
 
-async fn read_bangs(file_path: &str) -> Result<Vec<Bang>> {
-    let content = fs::read(file_path).await?;
-    let result = serde_json::from_slice::<Vec<Bang>>(&content)?;
-
-    Ok(result)
-}
-
 pub async fn get_bangs() -> Result<&'static Vec<Bang>> {
     let result = BANGS
-        .get_or_init(async || read_bangs(BANGS_FILE).await.unwrap_or(vec![]))
+        .get_or_init(async || serde_json::from_str::<Vec<Bang>>(BANGS_JSON_FILE).unwrap_or(vec![]))
         .await;
 
     Ok(result)
