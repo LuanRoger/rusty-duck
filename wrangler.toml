@@ -3,4 +3,19 @@ main = "build/index.js"
 compatibility_date = "2026-08-15"
 
 [build]
-command = "cargo install -q \"worker-build@^0.8\" && worker-build --release {% if panic_unwind %} --panic-unwind{% endif %}"
+command = "cargo install -q worker-build && worker-build --release"
+
+[observability]
+enabled = false
+head_sampling_rate = 1
+
+[observability.logs]
+enabled = true
+head_sampling_rate = 1
+persist = true
+invocation_logs = true
+
+[observability.traces]
+enabled = true
+persist = true
+head_sampling_rate = 1
