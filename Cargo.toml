@@ -3,13 +3,18 @@ name = "rusty-duck"
 version = "1.0.0"
 edition = "2024"
 
+[lib]
+name = "rusty_duck"
+path = "src/lib.rs"
+crate-type = ["rlib", "cdylib"]
+
 [dependencies]
 anyhow = "1.0.104"
-axum = { version = "0.8.9", features = ["macros"] }
+axum = { version = "0.8.9", default-features = false, features = ["json", "query"] }
 regex = "1.13.1"
 serde = { version = "1.0.229", features = ["derive"] }
 serde_json = "1.0.151"
-tokio = { version = "1.53.1", features = ["full"] }
-tower-http = { version = "0.7.0", features = ["trace"] }
+tower-service = { version = "0.3.3" }
 tracing = "0.1.44"
-tracing-subscriber = { version = "0.3.23", features = ["env-filter", "registry"] }
+worker = { version = "0.8.5", features = ["http", "axum"] }
+worker-macros = { version = "0.8.5", features = ['http'] }
