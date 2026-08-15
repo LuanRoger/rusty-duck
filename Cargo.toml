@@ -3,13 +3,30 @@ name = "rusty-duck"
 version = "1.0.0"
 edition = "2024"
 
+[lib]
+name = "rusty_duck"
+path = "src/lib.rs"
+crate-type = ["rlib", "cdylib"]
+
 [dependencies]
 anyhow = "1.0.104"
-axum = { version = "0.8.9", features = ["macros"] }
+axum = { version = "0.8.9", features = ["macros"], optional = true }
 regex = "1.13.1"
 serde = { version = "1.0.229", features = ["derive"] }
 serde_json = "1.0.151"
-tokio = { version = "1.53.1", features = ["full"] }
-tower-http = { version = "0.7.0", features = ["trace"] }
+tokio = { version = "1.53.1", features = ["full"], optional = true }
+tower-http = { version = "0.7.0", features = ["trace"], optional = true }
+tower-service = { version = "0.3.3", optional = true }
 tracing = "0.1.44"
-tracing-subscriber = { version = "0.3.23", features = ["env-filter", "registry"] }
+tracing-subscriber = { version = "0.3.23", features = ["env-filter", "registry"], optional = true }
+worker = { version = "0.8.5", features = ["http", "axum"], optional = true }
+
+[features]
+default = ["native"]
+native = ["dep:axum", "dep:tokio", "dep:tower-http", "dep:tracing-subscriber"]
+wasm = ["dep:axum", "dep:tower-service", "dep:worker"]
+
+[[bin]]
+name = "rusty-duck"
+path = "src/main.rs"
+required-features = ["native"]
