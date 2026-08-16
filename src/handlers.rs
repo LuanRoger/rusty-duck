@@ -1,9 +1,18 @@
 use anyhow::Result;
-use axum::{Json, extract::Query, http::StatusCode, response::Redirect};
+use axum::{
+    Json,
+    body::Body,
+    extract::Query,
+    http::{Response, StatusCode},
+    response::Redirect,
+};
 use serde::{Deserialize, Serialize};
 
-use crate::bang::{
-    BANG_REGEX, DEFAULT_BANG_SYMBOL, DEFAULT_BANG_TRIGGER_SYMBOL, QUERY_PLACEHOLDER, get_bangs,
+use crate::{
+    assets::FAVICON_FILE,
+    bang::{
+        BANG_REGEX, DEFAULT_BANG_SYMBOL, DEFAULT_BANG_TRIGGER_SYMBOL, QUERY_PLACEHOLDER, get_bangs,
+    },
 };
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -38,7 +47,7 @@ pub async fn query(Query(query): Query<HandlerQuery>) -> Result<Redirect, Status
 
     let bangs = get_bangs().await;
     if let Ok(bangs) = bangs {
-        let bang = bangs.iter().find(|b| b.trigger() == bang_match);
+        let bang = bangs.get(bang_match);
         match bang {
             Some(bang) => {
                 let rediret_to = bang.url();
@@ -50,6 +59,14 @@ pub async fn query(Query(query): Query<HandlerQuery>) -> Result<Redirect, Status
         }
     }
     Err(StatusCode::INTERNAL_SERVER_ERROR)
+}
+
+pub async fn favicon() -> Response<Body> {
+    Response::builder()
+        .header("Content-Type", "image/x-icon")
+        .status(StatusCode::OK)
+        .body(Body::from(FAVICON_FILE))
+        .expect("favicon response has a valid static configuration")
 }
 
 pub async fn ok() -> Result<Json<HealthResponse>, StatusCode> {
