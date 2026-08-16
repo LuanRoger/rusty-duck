@@ -18,3 +18,10 @@ tower-service = { version = "0.3.3" }
 tracing = "0.1.44"
 worker = { version = "0.8.5", features = ["http", "axum"] }
 worker-macros = { version = "0.8.5", features = ['http'] }
+
+[dev-dependencies]
+divan = "0.1.21"
+
+[[bench]]
+name = "bang-find"
+harness = false
