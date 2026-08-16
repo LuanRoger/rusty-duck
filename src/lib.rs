@@ -1,4 +1,5 @@
-mod bang;
+pub mod assets;
+pub mod bang;
 mod handlers;
 mod router;
 
