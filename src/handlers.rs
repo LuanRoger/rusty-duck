@@ -34,8 +34,8 @@ impl Default for HealthResponse {
 
 pub async fn query(Query(query): Query<HandlerQuery>) -> Result<Redirect, StatusCode> {
     let query = query.q.as_str();
-    let bang_match = query
-        .split_whitespace()
+    let mut query_partitions = query.split_whitespace();
+    let bang_match = query_partitions
         .next()
         .and_then(|bang_operation_candidate| {
             let is_bang = bang_operation_candidate.starts_with(DEFAULT_BANG_SYMBOL);
@@ -46,10 +46,15 @@ pub async fn query(Query(query): Query<HandlerQuery>) -> Result<Redirect, Status
             bang_operation_candidate
                 .rsplit_once(DEFAULT_BANG_SYMBOL)
                 .map(|bang_operation| bang_operation.1)
-        })
-        .unwrap_or(DEFAULT_BANG_TRIGGER_SYMBOL.as_str());
-    let query = query.trim_start_matches(bang_match).trim();
-    let bang_match = bang_match.trim_start_matches(DEFAULT_BANG_SYMBOL);
+        });
+    let query = if bang_match.is_none() {
+        query
+    } else {
+        query_partitions.next().expect("Query was not identified")
+    };
+    let bang_match = bang_match
+        .unwrap_or(DEFAULT_BANG_TRIGGER_SYMBOL.as_str())
+        .trim_start_matches(DEFAULT_BANG_SYMBOL);
 
     console_log!("Bang match: {}; Query: {}", bang_match, query);
 
