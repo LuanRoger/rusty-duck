@@ -4,7 +4,6 @@ use std::{
 };
 
 use anyhow::Result;
-use regex::Regex;
 use serde::{Deserialize, Serialize};
 
 use crate::assets::BANGS_JSON_FILE;
@@ -14,7 +13,6 @@ pub const DEFAULT_BANG_TRIGGER: &str = "g";
 pub const QUERY_PLACEHOLDER: &str = "{{{s}}}";
 pub static DEFAULT_BANG_TRIGGER_SYMBOL: LazyLock<String> =
     LazyLock::new(|| format!("{}{}", DEFAULT_BANG_SYMBOL, DEFAULT_BANG_TRIGGER));
-pub static BANG_REGEX: LazyLock<Regex> = LazyLock::new(|| Regex::new(r"!(\S+)").unwrap());
 pub static BANGS: OnceLock<HashMap<String, Bang>> = OnceLock::new();
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
