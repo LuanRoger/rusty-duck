@@ -23,11 +23,8 @@ mod bang_find {
 
     #[divan::bench(args = ["g", "yt", "t3", "gov", "tc", "note", "medium", "adr", "pcworldbg", "zdnet", "sapblogs", "r", "li", "gh", "ste"])]
     async fn hash(bang_to_find: &str) {
-        let bangs = get_bangs().await;
-        if let Ok(bangs_list) = bangs {
-            let bang = bangs_list.get(bang_to_find);
-            assert!(bang.is_some());
-            assert_eq!(bang.unwrap().trigger(), bang_to_find);
-        }
+        let bang = get_bangs().get(bang_to_find);
+        assert!(bang.is_some());
+        assert_eq!(bang.unwrap().trigger(), bang_to_find);
     }
 }

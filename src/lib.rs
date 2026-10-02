@@ -1,6 +1,7 @@
 pub mod assets;
 pub mod bang;
 mod handlers;
+pub mod resolver;
 mod router;
 
 use tower_service::Service;

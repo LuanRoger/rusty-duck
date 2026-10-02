@@ -3,7 +3,6 @@ use std::{
     sync::{LazyLock, OnceLock},
 };
 
-use anyhow::Result;
 use serde::{Deserialize, Serialize};
 
 use crate::assets::BANGS_JSON_FILE;
@@ -13,7 +12,12 @@ pub const DEFAULT_BANG_TRIGGER: &str = "g";
 pub const QUERY_PLACEHOLDER: &str = "{{{s}}}";
 pub static DEFAULT_BANG_TRIGGER_SYMBOL: LazyLock<String> =
     LazyLock::new(|| format!("{}{}", DEFAULT_BANG_SYMBOL, DEFAULT_BANG_TRIGGER));
-pub static BANGS: OnceLock<HashMap<String, Bang>> = OnceLock::new();
+pub static DEFAULT_BANG: LazyLock<&Bang> = LazyLock::new(|| {
+    get_bangs()
+        .get(DEFAULT_BANG_TRIGGER)
+        .expect("Default bang not found")
+});
+static BANGS: OnceLock<HashMap<String, Bang>> = OnceLock::new();
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct Bang {
@@ -32,14 +36,12 @@ impl Bang {
     }
 }
 
-pub async fn get_bangs() -> Result<&'static HashMap<String, Bang>> {
-    let result = BANGS.get_or_init(|| {
+pub fn get_bangs() -> &'static HashMap<String, Bang> {
+    BANGS.get_or_init(|| {
         serde_json::from_str::<Vec<Bang>>(BANGS_JSON_FILE)
-            .unwrap_or(vec![])
+            .unwrap_or_default()
             .into_iter()
             .map(|b| (b.trigger().to_string(), b))
             .collect()
-    });
-
-    Ok(result)
+    })
 }
