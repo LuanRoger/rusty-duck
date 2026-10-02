@@ -1,5 +1,6 @@
 use crate::bang::{Bang, DEFAULT_BANG, DEFAULT_BANG_SYMBOL, QUERY_PLACEHOLDER, get_bangs};
 
+#[derive(Debug)]
 pub struct Resolver {
     query: String,
     bang: Option<Bang>,
@@ -49,7 +50,7 @@ fn parse_as_query(query: String) -> String {
 
     query
         .split_whitespace()
-        .nth(1)
-        .map(String::from)
-        .expect("Query is not pressent")
+        .skip(1)
+        .collect::<Vec<_>>()
+        .join(" ")
 }
