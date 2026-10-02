@@ -1,36 +1,39 @@
-use crate::bang::{Bang, DEFAULT_BANG, DEFAULT_BANG_SYMBOL, QUERY_PLACEHOLDER, get_bangs};
+use worker::console_log;
+
+use crate::bang::{DEFAULT_BANG_SYMBOL, DEFAULT_BANG_TRIGGER, QUERY_PLACEHOLDER, get_bangs_fst};
 
 #[derive(Debug)]
-pub struct Resolver {
+pub struct Resolver<'a> {
     query: String,
-    bang: Option<Bang>,
+    bang: Option<&'a str>,
+    url: Option<&'static str>,
 }
 
+#[derive(Debug)]
 pub enum URLResult {
     Redirect(String),
     NotFound,
 }
 
-impl Resolver {
-    fn new(query: String, bang: Option<Bang>) -> Self {
-        Resolver { query, bang }
+impl<'a> Resolver<'a> {
+    fn new(query: String, bang: Option<&'a str>, url: Option<&'static str>) -> Self {
+        Resolver { query, bang, url }
     }
 }
 
-pub fn parse(query: String) -> Resolver {
-    let bang = extract_bang(&query);
-    let bang = match bang {
-        Some(bang) => get_bangs().get(bang),
-        None => Some(*DEFAULT_BANG),
-    };
+pub fn parse(query: &'_ str) -> Resolver<'_> {
+    let bang = extract_bang(query).unwrap_or(DEFAULT_BANG_TRIGGER);
     let query = parse_as_query(query);
+    let url = get_bangs_fst(bang);
 
-    Resolver::new(query, bang.cloned())
+    Resolver::new(query, Some(bang), url)
 }
 
 pub fn mount_url(resolver: Resolver) -> URLResult {
-    match resolver.bang {
-        Some(bang) => URLResult::Redirect(bang.url().replace(QUERY_PLACEHOLDER, &resolver.query)),
+    console_log!("{:?}", &resolver);
+
+    match resolver.url {
+        Some(url) => URLResult::Redirect(url.replace(QUERY_PLACEHOLDER, &resolver.query)),
         None => URLResult::NotFound,
     }
 }
@@ -42,10 +45,10 @@ fn extract_bang(query: &str) -> Option<&str> {
         .and_then(|mut splited_query| splited_query.next())
 }
 
-fn parse_as_query(query: String) -> String {
+fn parse_as_query(query: &'_ str) -> String {
     let has_bang = query.starts_with(DEFAULT_BANG_SYMBOL);
     if !has_bang {
-        return query;
+        return String::from(query);
     }
 
     query
