@@ -35,7 +35,7 @@ impl Default for HealthResponse {
 }
 
 pub async fn query(Query(query): Query<HandlerQuery>) -> Result<Redirect, StatusCode> {
-    let parsed_query = parse(query.q);
+    let parsed_query = parse(&query.q);
     let resolved_url = mount_url(parsed_query);
 
     match resolved_url {
