@@ -2,16 +2,42 @@ fn main() {
     divan::main();
 }
 
-#[allow(deprecated)]
 #[divan::bench_group()]
 mod bang_find {
-    use std::hint::black_box;
+    use std::{collections::HashMap, hint::black_box, sync::OnceLock};
 
     use divan::Bencher;
-    use rusty_duck::{
-        assets::BANGS_JSON_FILE,
-        bang::{Bang, get_bangs, get_bangs_fst},
-    };
+    use rusty_duck::bang::get_bangs_fst;
+    use serde::Deserialize;
+
+    const BANGS_JSON_FILE: &str = include_str!("../public/bangs.json");
+    static BANGS: OnceLock<HashMap<String, Bang>> = OnceLock::new();
+
+    #[derive(Deserialize)]
+    struct Bang {
+        t: String,
+        u: String,
+    }
+
+    impl Bang {
+        fn trigger(&self) -> &str {
+            self.t.as_str()
+        }
+
+        fn url(&self) -> &str {
+            self.u.as_str()
+        }
+    }
+
+    fn get_bangs() -> &'static HashMap<String, Bang> {
+        BANGS.get_or_init(|| {
+            serde_json::from_str::<Vec<Bang>>(BANGS_JSON_FILE)
+                .unwrap_or_default()
+                .into_iter()
+                .map(|bang| (bang.trigger().to_string(), bang))
+                .collect()
+        })
+    }
 
     #[divan::bench(args = ["g", "yt", "t3", "gov", "tc", "note", "medium", "adr", "pcworldbg", "zdnet", "sapblogs", "r", "li", "gh", "ste"])]
     fn list(bencher: Bencher, bang_to_find: &str) {
