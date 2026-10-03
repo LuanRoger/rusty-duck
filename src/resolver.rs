@@ -1,3 +1,5 @@
+use urlencoding::encode;
+
 use crate::bang::{DEFAULT_BANG_SYMBOL, DEFAULT_BANG_TRIGGER, QUERY_PLACEHOLDER, get_bangs_fst};
 
 #[derive(Debug)]
@@ -28,7 +30,10 @@ pub fn parse(query: &str) -> Resolver {
 
 pub fn mount_url(resolver: Resolver) -> URLResult {
     match resolver.url {
-        Some(url) => URLResult::Redirect(url.replace(QUERY_PLACEHOLDER, &resolver.query)),
+        Some(url) => {
+            let query = encode(&resolver.query);
+            URLResult::Redirect(url.replace(QUERY_PLACEHOLDER, &query))
+        }
         None => URLResult::NotFound,
     }
 }
