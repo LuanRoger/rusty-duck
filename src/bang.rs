@@ -1,45 +1,23 @@
-use std::{
-    collections::HashMap,
-    sync::{LazyLock, OnceLock},
-};
+use std::sync::LazyLock;
 
-use anyhow::Result;
-use serde::{Deserialize, Serialize};
+use fst::Map;
 
-use crate::assets::BANGS_JSON_FILE;
+use crate::assets::{BANGS_FST_FILE, URLS_BIN_FILE};
 
 pub const DEFAULT_BANG_SYMBOL: char = '!';
 pub const DEFAULT_BANG_TRIGGER: &str = "g";
 pub const QUERY_PLACEHOLDER: &str = "{{{s}}}";
 pub static DEFAULT_BANG_TRIGGER_SYMBOL: LazyLock<String> =
     LazyLock::new(|| format!("{}{}", DEFAULT_BANG_SYMBOL, DEFAULT_BANG_TRIGGER));
-pub static BANGS: OnceLock<HashMap<String, Bang>> = OnceLock::new();
+static BANGS_FST: LazyLock<Map<&'static [u8]>> =
+    LazyLock::new(|| Map::new(BANGS_FST_FILE).expect("Was not possible to create FST map"));
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
-pub struct Bang {
-    s: String,
-    t: String,
-    u: String,
-}
+pub fn get_bangs_fst(trigger: &str) -> Option<&'static str> {
+    let packed = BANGS_FST.get(trigger)?;
 
-impl Bang {
-    pub fn trigger(&self) -> &str {
-        self.t.as_str()
-    }
+    let offset = (packed >> 32) as usize;
+    let length = (packed & 0xFFFF) as usize;
+    let url_bytes = URLS_BIN_FILE.get(offset..offset + length)?;
 
-    pub fn url(&self) -> &str {
-        self.u.as_str()
-    }
-}
-
-pub async fn get_bangs() -> Result<&'static HashMap<String, Bang>> {
-    let result = BANGS.get_or_init(|| {
-        serde_json::from_str::<Vec<Bang>>(BANGS_JSON_FILE)
-            .unwrap_or(vec![])
-            .into_iter()
-            .map(|b| (b.trigger().to_string(), b))
-            .collect()
-    });
-
-    Ok(result)
+    str::from_utf8(url_bytes).ok()
 }

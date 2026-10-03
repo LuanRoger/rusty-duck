@@ -7,11 +7,13 @@ use axum::{
     response::Redirect,
 };
 use serde::{Deserialize, Serialize};
-use worker::console_log;
 
 use crate::{
     assets::FAVICON_FILE,
-    bang::{DEFAULT_BANG_SYMBOL, DEFAULT_BANG_TRIGGER_SYMBOL, QUERY_PLACEHOLDER, get_bangs},
+    resolver::{
+        URLResult::{self},
+        mount_url, parse,
+    },
 };
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -33,45 +35,13 @@ impl Default for HealthResponse {
 }
 
 pub async fn query(Query(query): Query<HandlerQuery>) -> Result<Redirect, StatusCode> {
-    let query = query.q.as_str();
-    let mut query_partitions = query.split_whitespace();
-    let bang_match = query_partitions
-        .next()
-        .and_then(|bang_operation_candidate| {
-            let is_bang = bang_operation_candidate.starts_with(DEFAULT_BANG_SYMBOL);
-            if !is_bang {
-                return None;
-            }
+    let parsed_query = parse(&query.q);
+    let resolved_url = mount_url(parsed_query);
 
-            bang_operation_candidate
-                .rsplit_once(DEFAULT_BANG_SYMBOL)
-                .map(|bang_operation| bang_operation.1)
-        });
-    let query = if bang_match.is_none() {
-        query
-    } else {
-        query_partitions.next().expect("Query was not identified")
-    };
-    let bang_match = bang_match
-        .unwrap_or(DEFAULT_BANG_TRIGGER_SYMBOL.as_str())
-        .trim_start_matches(DEFAULT_BANG_SYMBOL);
-
-    console_log!("Bang match: {}; Query: {}", bang_match, query);
-
-    let bangs = get_bangs().await;
-    if let Ok(bangs) = bangs {
-        let bang = bangs.get(bang_match);
-        match bang {
-            Some(bang) => {
-                let rediret_to = bang.url();
-                let redirect_to = rediret_to.replace(QUERY_PLACEHOLDER, query);
-
-                return Ok(Redirect::permanent(redirect_to.as_str()));
-            }
-            None => return Err(StatusCode::NOT_FOUND),
-        }
+    match resolved_url {
+        URLResult::Redirect(url) => Ok(Redirect::temporary(&url)),
+        URLResult::NotFound => Err(StatusCode::NOT_FOUND),
     }
-    Err(StatusCode::INTERNAL_SERVER_ERROR)
 }
 
 pub async fn favicon() -> Response<Body> {
