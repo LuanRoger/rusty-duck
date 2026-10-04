@@ -2,7 +2,7 @@ use std::sync::LazyLock;
 
 use fst::Map;
 
-use crate::assets::{BANGS_FST_FILE, URLS_BIN_FILE};
+use crate::assets::{BANGS_FST_FILE, URLS_FILE};
 
 pub const DEFAULT_BANG_SYMBOL: char = '!';
 pub const DEFAULT_BANG_TRIGGER: &str = "g";
@@ -15,9 +15,9 @@ static BANGS_FST: LazyLock<Map<&'static [u8]>> =
 pub fn get_bangs_fst(trigger: &str) -> Option<&'static str> {
     let packed = BANGS_FST.get(trigger)?;
 
-    let offset = (packed >> 32) as usize;
-    let length = (packed & 0xFFFF) as usize;
-    let url_bytes = URLS_BIN_FILE.get(offset..offset + length)?;
+    let offset = (packed >> 16) as usize;
+    let length = (packed & u16::MAX as u64) as usize;
+    let end = offset.checked_add(length)?;
 
-    str::from_utf8(url_bytes).ok()
+    URLS_FILE.get(offset..end)
 }
