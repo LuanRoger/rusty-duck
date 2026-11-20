@@ -1,9 +1,10 @@
 ---
 import Base from "../layouts/Base.astro";
-import Search from "../components/Search.astro";
+import SearchCTA from "../components/SearchCTA.astro";
 ---
 
-<Base className="flex flex-col items-center gap-4">
-    <h1 class="text-2xl font-bold">Rusty Duck</h1>
-    <Search />
+<Base className="h-screen">
+    <main class="relative size-full">
+        <SearchCTA className="absolute inset-0" />
+    </main>
 </Base>

@@ -2,14 +2,22 @@
 import SearchIcon from "../assets/icons/search.svg";
 ---
 
-<form class="flex flex-row" action="https://search.luanroger.dev" method="GET">
-    <div class="join">
-        <label class="input join-item" for="search-input">
-            <SearchIcon />
-            <input type="text" id="search-input" name="q" required />
-        </label>
-        <button type="submit" class="btn join-item">
-            GO
-        </button>
-    </div>
+<form
+    class="flex flex-col w-full items-center justify-center max-w-3/4 gap-2"
+    action="https://search.luanroger.dev"
+    method="GET"
+>
+    <label class="input flex-1" for="search-input">
+        <SearchIcon />
+        <input
+            type="text"
+            id="search-input"
+            name="q"
+            required
+            class="p-2 min-h-11"
+        />
+    </label>
+    <button type="submit" class="btn">
+        GO
+    </button>
 </form>
