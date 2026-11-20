@@ -1,0 +1,23 @@
+---
+import "../styles/global.css";
+
+interface Props {
+    className?: string;
+}
+
+const { className } = Astro.props;
+---
+
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+        <link rel="icon" href="/favicon.ico" />
+        <meta name="viewport" content="width=device-width" />
+        <meta name="generator" content={Astro.generator} />
+        <title>Rusty Duck</title>
+    </head>
+    <body class={className}>
+        <slot />
+    </body>
+</html>
