@@ -1,4 +1,5 @@
 ---
+import NavBar from "../components/NavBar.astro";
 import "../styles/global.css";
 
 interface Props {
@@ -8,7 +9,7 @@ interface Props {
 const { className } = Astro.props;
 ---
 
-<html lang="en">
+<html lang="en" data-theme="retro">
     <head>
         <meta charset="utf-8" />
         <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
@@ -18,6 +19,7 @@ const { className } = Astro.props;
         <title>Rusty Duck</title>
     </head>
     <body class={className}>
+        <NavBar />
         <slot />
     </body>
 </html>
