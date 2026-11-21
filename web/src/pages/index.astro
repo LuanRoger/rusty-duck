@@ -3,8 +3,6 @@ import Base from "../layouts/Base.astro";
 import SearchCTA from "../components/SearchCTA.astro";
 ---
 
-<Base className="h-screen">
-    <main class="relative size-full">
-        <SearchCTA className="absolute inset-0" />
-    </main>
+<Base>
+    <SearchCTA className="absolute inset-0 -z-10" />
 </Base>
