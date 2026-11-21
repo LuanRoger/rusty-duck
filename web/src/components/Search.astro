@@ -1,0 +1,23 @@
+---
+import SearchIcon from "../assets/icons/search.svg";
+---
+
+<form
+    class="flex flex-col w-full max-w-3/4 gap-1"
+    action="https://search.luanroger.dev"
+    method="GET"
+>
+    <label class="input w-full" for="search-input">
+        <SearchIcon width={16} height={16} />
+        <input
+            type="text"
+            id="search-input"
+            name="q"
+            required
+            class="p-2 min-h-11"
+        />
+    </label>
+    <span class="text-sm opacity-50 self-end">
+        Press <kbd class="kbd kbd-xs">Enter</kbd> to search
+    </span>
+</form>

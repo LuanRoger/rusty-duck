@@ -1,0 +1,26 @@
+---
+import LinksSection from "../components/LinksSection.astro";
+import NavBar from "../components/NavBar.astro";
+import "../styles/global.css";
+
+interface Props {
+    className?: string;
+}
+
+const { className } = Astro.props;
+---
+
+<html lang="en" data-theme="retro">
+    <head>
+        <meta charset="utf-8" />
+        <link rel="icon" href="/favicon.ico" />
+        <meta name="viewport" content="width=device-width" />
+        <meta name="generator" content={Astro.generator} />
+        <title>Rusty Duck</title>
+    </head>
+    <body class:list={["antialiased font-sans", className]}>
+        <NavBar />
+        <LinksSection />
+        <slot />
+    </body>
+</html>

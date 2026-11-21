@@ -1,0 +1,19 @@
+@import "tailwindcss";
+@plugin "daisyui" {
+  themes: light --default, dark --prefersdark, retro;
+}
+
+@font-face {
+	font-family: FunnelDisplay;
+	src: url("/fonts/FunnelDisplay.ttf");
+}
+
+@font-face {
+	font-family: FunnelSans;
+	src: url("/fonts/FunnelSans.ttf");
+}
+
+@theme {
+    --font-display: FunnelDisplay;
+    --font-sans: FunnelSans;
+}

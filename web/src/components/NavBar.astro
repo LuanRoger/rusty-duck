@@ -1,0 +1,27 @@
+---
+---
+
+<nav
+    class="tabs tabs-border bg-base-100 shadow-sm w-full justify-center items-center"
+    transition:name="navbar"
+>
+    <a href="/" class="tab" id="search-tab">
+        Search
+    </a>
+    <a href="/bangs" class="tab" id="bangs-tab">
+        Bangs
+    </a>
+</nav>
+
+<script>
+    const currentPage = window.location.pathname;
+
+    const searchTab = document.getElementById("search-tab");
+    const bangsTab = document.getElementById("bangs-tab");
+
+    if (currentPage === "/bangs") {
+        bangsTab?.classList.add("tab-active");
+    } else {
+        searchTab?.classList.add("tab-active");
+    }
+</script>
