@@ -21,39 +21,37 @@ impl Resolver {
 }
 
 pub fn parse(query: &str) -> Resolver {
-    let bang = extract_bang(query).unwrap_or(DEFAULT_BANG_TRIGGER);
-    let query = parse_as_query(query);
+    let (bang, query) = split_query(query);
     let url = get_bangs_fst(bang);
 
-    Resolver::new(query, url)
+    Resolver::new(String::from(query), url)
 }
 
 pub fn mount_url(resolver: Resolver) -> URLResult {
     match resolver.url {
         Some(url) => {
+            let Some((prefix, suffix)) = url.split_once(QUERY_PLACEHOLDER) else {
+                return URLResult::NotFound;
+            };
             let query = encode(&resolver.query);
-            URLResult::Redirect(url.replace(QUERY_PLACEHOLDER, &query))
+            let mut result = String::with_capacity(prefix.len() + query.len() + suffix.len());
+
+            result.push_str(prefix);
+            result.push_str(&query);
+            result.push_str(suffix);
+            URLResult::Redirect(result)
         }
         None => URLResult::NotFound,
     }
 }
 
-fn extract_bang(query: &str) -> Option<&str> {
-    query
-        .strip_prefix(DEFAULT_BANG_SYMBOL)
-        .map(|query_rest| query_rest.split_whitespace())
-        .and_then(|mut splited_query| splited_query.next())
-}
+fn split_query(query: &str) -> (&str, &str) {
+    let Some(rest) = query.strip_prefix(DEFAULT_BANG_SYMBOL) else {
+        return (DEFAULT_BANG_TRIGGER, query);
+    };
 
-fn parse_as_query(query: &'_ str) -> String {
-    let has_bang = query.starts_with(DEFAULT_BANG_SYMBOL);
-    if !has_bang {
-        return String::from(query);
+    match rest.find(char::is_whitespace) {
+        Some(index) => (&rest[..index], rest[index..].trim()),
+        None => (rest, ""),
     }
-
-    query
-        .split_whitespace()
-        .skip(1)
-        .collect::<Vec<_>>()
-        .join(" ")
 }
