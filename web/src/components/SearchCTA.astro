@@ -9,8 +9,10 @@ const { className } = Astro.props;
 ---
 
 <div
-    class:list={["flex flex-col items-center justify-center gap-2", className]}
+    class:list={["flex flex-col items-center justify-center gap-4", className]}
 >
-    <h1 class="text-2xl font-bold">Rusty Duck</h1>
+    <h1 class="text-7xl font-bold font-display opacity-80 tracking-wide">
+        Rusty Duck
+    </h1>
     <Search />
 </div>
