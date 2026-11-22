@@ -1,6 +1,5 @@
 packages:
-  - .
-  - web/
+  - apps/*
 
 allowBuilds:
   esbuild: false
