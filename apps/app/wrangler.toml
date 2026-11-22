@@ -5,19 +5,10 @@ compatibility_date = "2026-10-30"
 [assets]
 directory = "./public/web"
 binding = "ASSETS"
-run_worker_first = true
+run_worker_first = ["/", "/system"]
 
 [build]
 command = "cargo install -q worker-build && worker-build --release"
 
 [observability]
 enabled = false
-
-[observability.logs]
-enabled = false
-persist = false
-invocation_logs = false
-
-[observability.traces]
-enabled = false
-persist = false
