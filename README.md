@@ -50,7 +50,9 @@ Start the Worker locally with Wrangler:
 pnpm dev
 ```
 
-Wrangler serves the Worker at `http://localhost:8787` by default. Test the health endpoint and a redirect with:
+The Worker build runs the Astro build and copies its output into `apps/app/public/web` for Wrangler to deploy as static assets. Install the workspace dependencies before building the Worker; Node.js and pnpm are required even when running Cargo directly.
+
+Wrangler serves the Worker at `http://localhost:8787` by default. Open `/` for the home page, or test the health endpoint and a redirect with:
 
 ```sh
 curl http://localhost:8787/system

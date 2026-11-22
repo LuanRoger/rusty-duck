@@ -6,3 +6,4 @@
 .wrangler/
 node_modules/
 build/
+/public/web/
