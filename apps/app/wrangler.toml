@@ -5,7 +5,7 @@ compatibility_date = "2026-10-30"
 [assets]
 directory = "./public/web"
 binding = "ASSETS"
-run_worker_first = ["/", "/system"]
+run_worker_first = ["/search", "/system"]
 
 [build]
 command = "cargo install -q worker-build && worker-build --release"
