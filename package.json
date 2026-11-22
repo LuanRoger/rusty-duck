@@ -3,10 +3,17 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "deploy": "wrangler deploy",
-    "dev": "wrangler dev --local"
+    "dev": "turbo dev",
+    "build": "turbo build"
   },
-  "dependencies": {
-    "wrangler": "^4.158.0"
+  "devDependencies": {
+    "turbo": "^2.11.13"
+  },
+  "devEngines": {
+    "packageManager": {
+      "name": "pnpm",
+      "version": "^12.21.0",
+      "onFail": "error"
+    }
   }
 }

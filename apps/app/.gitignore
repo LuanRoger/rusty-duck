@@ -1,0 +1,8 @@
+# build artifacts
+*.fst
+*.bin
+
+/target
+.wrangler/
+node_modules/
+build/
