@@ -5,7 +5,7 @@ use crate::handlers::{health, query};
 pub async fn route(req: Request, env: Env) -> Result<Response> {
     match req.path().as_str() {
         "/system" => return get(req.method(), health),
-        "/" => {
+        "/search" => {
             let url = req.inner().url();
             let url = url.split('#').next().unwrap_or_default();
             if let Some((_, raw_query)) = url.split_once('?')

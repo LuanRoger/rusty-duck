@@ -5,7 +5,15 @@
       "dependsOn": ["^build"],
       "outputs": ["./dist/**"]
     },
+    "app#build": {
+      "cache": false
+    },
     "dev": {
+      "persistent": true,
+      "cache": false
+    },
+    "app#dev": {
+      "dependsOn": ["app#build", "web#build"],
       "persistent": true,
       "cache": false
     }

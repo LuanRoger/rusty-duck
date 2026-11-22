@@ -2,24 +2,11 @@ use std::{
     env,
     fs::{self, File},
     io::BufWriter,
-    path::{Path, PathBuf},
-    process::Command,
+    path::PathBuf,
 };
 
 use fst::MapBuilder;
 use serde::Deserialize;
-
-const WEB_PATHS_WATCH: &[&str] = &[
-    "../web/src",
-    "../web/public",
-    "../web/astro.config.mjs",
-    "../web/package.json",
-    "../web/tsconfig.json",
-    "../../pnpm-lock.yaml",
-];
-const WEB_PATH: &str = "../web";
-const WEB_DIST_PATH: &str = "../web/dist";
-const WEB_PUBLIC_PATH: &str = "public/web";
 
 const BANGS_JSON_FILE: &str = "public/bangs.json";
 const BANGS_FST_FILE: &str = "bangs.fst";
@@ -31,36 +18,8 @@ pub struct Bang {
     u: String,
 }
 
-fn copy_dir(source: &Path, destination: &Path) -> std::io::Result<()> {
-    fs::create_dir_all(destination)?;
-    for entry in fs::read_dir(source)? {
-        let entry = entry?;
-        let target = destination.join(entry.file_name());
-        if entry.file_type()?.is_dir() {
-            copy_dir(&entry.path(), &target)?;
-        } else {
-            fs::copy(entry.path(), target)?;
-        }
-    }
-    Ok(())
-}
-
 fn main() {
-    for path in WEB_PATHS_WATCH {
-        println!("cargo:rerun-if-changed={path}");
-    }
-
-    let status = Command::new("pnpm")
-        .args(["--dir", WEB_PATH, "build"])
-        .status()
-        .expect("Failed to start Astro build; ensure pnpm is installed");
-    assert!(status.success(), "Astro build failed: {status}");
-
-    let site = Path::new(WEB_PUBLIC_PATH);
-    if site.exists() {
-        fs::remove_dir_all(site).expect("Failed to remove previous Astro build");
-    }
-    copy_dir(Path::new(WEB_DIST_PATH), site).expect("Failed to copy Astro build");
+    println!("cargo:rerun-if-changed={BANGS_JSON_FILE}");
 
     let out_dir = PathBuf::from(env::var("OUT_DIR").expect("OUT_DIR needs to be available"));
     let bangs_json_raw = fs::read_to_string(BANGS_JSON_FILE).expect("Bang file was not found");

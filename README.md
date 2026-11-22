@@ -25,14 +25,16 @@ https://search.luanroger.dev/?q=%s
 ## Requirements
 
 - [Rust](https://www.rust-lang.org/tools/install) with the `wasm32-unknown-unknown` target
-- [Node.js](https://nodejs.org/)
-- [pnpm](https://pnpm.io/)
+- [Node.js](https://nodejs.org/) 24 (the version used in CI)
+- [pnpm](https://pnpm.io/) 12.21 or later in the 12.x series
+- [`worker-build`](https://crates.io/crates/worker-build) 0.9.0
 - A Cloudflare account for deployment
 
-Install the Rust WebAssembly target if it is not already available:
+Install the Rust WebAssembly target and Worker build tool:
 
 ```sh
 rustup target add wasm32-unknown-unknown
+cargo install worker-build --version 0.9.0 --locked
 ```
 
 ## Local development
@@ -49,16 +51,31 @@ Start the Worker locally with Wrangler:
 pnpm dev
 ```
 
-The Worker build runs the Astro build and copies its output into `apps/app/public/web` for Wrangler to deploy as static assets. Install the workspace dependencies before building the Worker; Node.js and pnpm are required even when running Cargo directly.
+Turbo builds the Worker and Astro separately before starting Wrangler. Wrangler serves `apps/web/dist` directly as Worker Static Assets. Use the Astro dev server for frontend hot reload; to update the integrated Wrangler preview, rebuild the changed workspace from another terminal with `pnpm --filter web build` or `pnpm --filter app build`.
+
+Cargo builds only the Rust code and regenerates its embedded bang database when `apps/app/public/bangs.json` changes. It does not run Astro or require Node.js or pnpm.
 
 Wrangler serves the Worker at `http://localhost:8787` by default. Open `/` for the home page, or test the health endpoint and a redirect with:
 
 ```sh
 curl http://localhost:8787/system
-curl -i 'http://localhost:8787/?q=!g+rust+language'
+curl -i 'http://localhost:8787/search?q=!g+rust+language'
 ```
 
 Application messages written with `worker::console_log!` appear in the Wrangler terminal.
+
+## CI and deployment
+
+GitHub Actions runs `pnpm build` (Turbo) and a Wrangler dry run on pull requests and pushes to `main`. After those checks pass on `main`, Wrangler deploys the Worker and Astro assets together. There is no separate web deployment.
+
+Configure `CLOUDFLARE_API_TOKEN` as a GitHub Actions secret and `CLOUDFLARE_ACCOUNT_ID` as a GitHub Actions repository variable. Scope the token to the target Cloudflare account with **Workers Scripts: Edit** permission.
+
+To validate the same bundle locally without uploading it:
+
+```sh
+pnpm build
+pnpm --filter app run deploy --dry-run
+```
 
 ## Observability
 

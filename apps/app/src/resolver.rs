@@ -3,8 +3,8 @@ use urlencoding::encode;
 use crate::bang::{DEFAULT_BANG_SYMBOL, DEFAULT_BANG_TRIGGER, QUERY_PLACEHOLDER, get_bangs_fst};
 
 #[derive(Debug)]
-pub struct Resolver {
-    query: String,
+pub struct Resolver<'a> {
+    query: &'a str,
     url: Option<&'static str>,
 }
 
@@ -14,17 +14,17 @@ pub enum URLResult {
     NotFound,
 }
 
-impl Resolver {
-    fn new(query: String, url: Option<&'static str>) -> Self {
+impl<'a> Resolver<'a> {
+    fn new(query: &'a str, url: Option<&'static str>) -> Self {
         Resolver { query, url }
     }
 }
 
-pub fn parse(query: &str) -> Resolver {
+pub fn parse<'a>(query: &'a str) -> Resolver<'a> {
     let (bang, query) = split_query(query);
     let url = get_bangs_fst(bang);
 
-    Resolver::new(String::from(query), url)
+    Resolver::new(query, url)
 }
 
 pub fn mount_url(resolver: Resolver) -> URLResult {
@@ -33,7 +33,7 @@ pub fn mount_url(resolver: Resolver) -> URLResult {
             let Some((prefix, suffix)) = url.split_once(QUERY_PLACEHOLDER) else {
                 return URLResult::NotFound;
             };
-            let query = encode(&resolver.query);
+            let query = encode(resolver.query);
             let mut result = String::with_capacity(prefix.len() + query.len() + suffix.len());
 
             result.push_str(prefix);
