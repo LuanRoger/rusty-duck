@@ -7,8 +7,7 @@ A lightweight [DuckDuckGo-style bang](https://duckduckgo.com/bangs) redirect ser
 ## Technology
 
 - [Rust](https://www.rust-lang.org/)
-- [Axum](https://github.com/tokio-rs/axum) for routing and HTTP handlers
-- [workers-rs](https://github.com/cloudflare/workers-rs) for the Cloudflare Workers runtime
+- [workers-rs](https://github.com/cloudflare/workers-rs) for native Cloudflare Workers request and response handling
 - [Wrangler](https://developers.cloudflare.com/workers/wrangler/) for local development and deployment
 
 ## Try it out!

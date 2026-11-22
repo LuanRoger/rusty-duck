@@ -1,57 +1,33 @@
-use anyhow::Result;
-use axum::{
-    Json,
-    body::Body,
-    extract::Query,
-    http::{Response, StatusCode},
-    response::Redirect,
-};
-use serde::{Deserialize, Serialize};
+use worker::{Response, Result};
 
-use crate::{
-    assets::FAVICON_FILE,
-    resolver::{
-        URLResult::{self},
-        mount_url, parse,
-    },
-};
+use crate::resolver::{URLResult, mount_url, parse};
 
-#[derive(Debug, Serialize, Deserialize)]
-pub struct HandlerQuery {
-    q: String,
-}
+pub fn query(raw_query: &str) -> Result<Response> {
+    let mut queries = form_urlencoded::parse(raw_query.as_bytes())
+        .filter_map(|(key, value)| (key == "q").then_some(value));
+    
+    let Some(query) = queries.next() else {
+        return bad_query("Failed to deserialize query string: missing field `q`");
+    };
+    if queries.next().is_some() {
+        return bad_query("Failed to deserialize query string: duplicate field `q`");
+    }
 
-#[derive(Debug, Serialize, Deserialize)]
-pub struct HealthResponse {
-    message: String,
-}
-
-impl Default for HealthResponse {
-    fn default() -> Self {
-        Self {
-            message: String::from("OK"),
-        }
+    match mount_url(parse(&query)) {
+        URLResult::Redirect(url) => Ok(Response::builder()
+            .with_status(307)
+            .with_header("Location", &url)?
+            .empty()),
+        URLResult::NotFound => Ok(Response::builder().with_status(404).empty()),
     }
 }
 
-pub async fn query(Query(query): Query<HandlerQuery>) -> Result<Redirect, StatusCode> {
-    let parsed_query = parse(&query.q);
-    let resolved_url = mount_url(parsed_query);
-
-    match resolved_url {
-        URLResult::Redirect(url) => Ok(Redirect::temporary(&url)),
-        URLResult::NotFound => Err(StatusCode::NOT_FOUND),
-    }
+pub fn health() -> Result<Response> {
+    Ok(Response::builder()
+        .with_header("Content-Type", "application/json")?
+        .fixed(br#"{"message":"OK"}"#.to_vec()))
 }
 
-pub async fn favicon() -> Response<Body> {
-    Response::builder()
-        .header("Content-Type", "image/x-icon")
-        .status(StatusCode::OK)
-        .body(Body::from(FAVICON_FILE))
-        .expect("favicon response has a valid static configuration")
-}
-
-pub async fn ok() -> Result<Json<HealthResponse>, StatusCode> {
-    Ok(Json(HealthResponse::default()))
+fn bad_query(message: &str) -> Result<Response> {
+    Ok(Response::ok(message)?.with_status(400))
 }
