@@ -1,0 +1,48 @@
+name: Deploy
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: deploy-${{ github.ref }}
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '26'
+
+      - name: Install pnpm and workspace dependencies
+        run: |
+          npm install --global pnpm@12.21.0
+          pnpm install --frozen-lockfile
+
+      - name: Set up Rust and worker-build
+        run: |
+          rustup toolchain install stable --profile minimal --target wasm32-unknown-unknown
+          rustup default stable
+          cargo install worker-build --version 0.9.0 --locked
+
+      - name: Build Worker and static assets
+        run: pnpm build
+
+      - name: Validate Wrangler bundle
+        run: pnpm --filter app run deploy --dry-run
+
+      - name: Deploy Worker and static assets
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        env:
+          CLOUDFLARE_ACCOUNT_ID: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+        run: pnpm --filter app run deploy
