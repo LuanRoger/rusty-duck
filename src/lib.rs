@@ -7,7 +7,7 @@ mod router;
 use tower_service::Service;
 use worker::*;
 
-use crate::router::router;
+use crate::router::ROUTER;
 
 #[event(fetch)]
 async fn fetch(
@@ -15,5 +15,5 @@ async fn fetch(
     _env: Env,
     _ctx: Context,
 ) -> Result<axum::http::Response<axum::body::Body>> {
-    Ok(router().call(req).await?)
+    Ok(ROUTER.clone().call(req).await?)
 }

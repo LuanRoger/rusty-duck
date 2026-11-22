@@ -18,8 +18,8 @@ axum = { version = "0.8.9", default-features = false, features = ["json", "query
 serde = { version = "1.0.229", features = ["derive"] }
 tower-service = { version = "0.3.3" }
 fst = "0.4.7"
-worker = { version = "0.8.7", features = ["http", "axum"] }
-worker-macros = { version = "0.8.7", features = ['http'] }
+worker = { version = "0.9.0", features = ["http", "axum"] }
+worker-macros = { version = "0.9.0", features = ['http'] }
 urlencoding = "2.1.3"
 
 [dev-dependencies]
