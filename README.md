@@ -12,7 +12,7 @@ A lightweight [DuckDuckGo-style bang](https://duckduckgo.com/bangs) redirect ser
 
 ## Try it out!
 
-Access https://search.luanroger.dev?q=!yt+rust+cloudflare+workers.
+Access https://search.luanroger.dev/search?q=!yt+rust+cloudflare+workers.
 
 The query is resolved against an embedded bang data set and redirected to the matching search provider, check the [`bangs.json`](https://raw.githubusercontent.com/LuanRoger/rusty-duck/refs/heads/main/public/bangs.json).
 
@@ -25,7 +25,7 @@ https://search.luanroger.dev/?q=%s
 ## Requirements
 
 - [Rust](https://www.rust-lang.org/tools/install) with the `wasm32-unknown-unknown` target
-- [Node.js](https://nodejs.org/) 24 (the version used in CI)
+- [Node.js](https://nodejs.org/) 26 (the version used in CI)
 - [pnpm](https://pnpm.io/) 12.21 or later in the 12.x series
 - [`worker-build`](https://crates.io/crates/worker-build) 0.9.0
 - A Cloudflare account for deployment
