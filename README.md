@@ -80,3 +80,11 @@ pnpm --filter app run deploy --dry-run
 ## Observability
 
 Cloudflare observability, persisted logs, and traces are disabled by default in `wrangler.toml`. To retain production logs in Cloudflare, enable the relevant `[observability]` and `[observability.logs]` options before deploying. Be mindful that search queries may contain sensitive information and are currently included in the request handler's console output.
+
+## AI Policy
+
+**WRITE**: AI has read-write permissions
+
+<img src="https://0rwx.com/static/AI-W-dark.png" width="64" />
+
+[See more](https://0rwx.com)
